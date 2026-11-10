@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tá no Prazo - Alimentos com Desconto</title>
+  <style>
+    /* VARIÁVEIS E CORES ORIGINAIS VIBRANTES */
+    :root {
+      --font-scale: 1;
+      --bg-primary: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --brand-orange: #ff5722;
+      --brand-orange-hover: #e64a19;
+      --brand-yellow: #ffb703;
+      --brand-green: #10b981;
+      --brand-red: #ef4444;
+      --border-color: #e2e8f0;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ALTO CONTRASTE */
+    body.high-contrast {
+      --bg-primary: #000000;
+      --bg-card: #121212;
+      --text-main: #ffffff;
+      --text-muted: #ffff00;
+      --brand-orange: #ff9800;
+      --brand-yellow: #ffff00;
+      --brand-green: #00ff00;
+      --brand-red: #ff0000;
+      --border-color: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-size: calc(16px * var(--font-scale));
+      line-height: 1.5;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* BARRA DE ACESSIBILIDADE */
+    .a11y-bar {
+      background: #0f172a;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.875rem;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .a11y-btn {
+      background: #334155;
+      color: #fff;
+      border: 1px solid #475569;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .a11y-btn:hover { background: #475569; }
+
+    /* CABEÇALHO COM GRADIENTE VIBRANTE ORIGINAL */
+    header {
+      background: linear-gradient(135deg, var(--brand-orange), #f43f5e);
+      color: white;
+      padding: 1.5rem 1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+    .logo span { background: var(--brand-yellow); color: #000; padding: 2px 8px; border-radius: 6px; }
+
+    .user-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-header {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .btn-header:hover { background: rgba(255,255,255,0.35); }
+    .btn-cart-count {
+      background: var(--brand-yellow);
+      color: #000;
+      border-radius: 50%;
+      padding: 2px 7px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    /* HERO E BUSCA */
+    .hero {
+      background: #fff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2rem; color: var(--text-main); margin-bottom: 0.5rem; }
+    .hero p { color: var(--text-muted); margin-bottom: 1.5rem; }
+    
+    .search-bar {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .search-bar input:focus { border-color: var(--brand-orange); }
+
+    /* LAYOUT DA PÁGINA */
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    /* FILTROS */
+    .sidebar {
+      background: var(--bg-card);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      height: fit-content;
+    }
+    .filter-group { margin-bottom: 1.5rem; }
+    .filter-group h3 { font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--text-main); }
+    .filter-option { display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; cursor: pointer; }
+
+    /* GRID DE PRODUTOS */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); }
+
+    .badge-discount {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--brand-red);
+      color: white;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      z-index: 2;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .badge-expiry {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.75);
+      color: var(--brand-yellow);
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      z-index: 2;
+    }
+
+    /* ANIMAÇÃO PISCA / PULSAR PARA VENCIMENTO HOJE OU DIA SEGUINTE (AMANHÃ) */
+    @keyframes pulseUrgent {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+      }
+      50% {
+        transform: scale(1.06);
+        box-shadow: 0 0 12px 4px rgba(239, 68, 68, 1);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
+    }
+
+    .badge-expiry.urgent {
+      background: var(--brand-red) !important;
+      color: #ffffff !important;
+      font-weight: 800;
+      animation: pulseUrgent 1.3s infinite ease-in-out;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #eee;
+    }
+
+    .card-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .store-name { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    .product-title { font-size: 1.1rem; font-weight: 700; margin: 4px 0 8px 0; color: var(--text-main); }
+    
+    .prices { display: flex; align-items: baseline; gap: 8px; margin-top: auto; padding-top: 10px; }
+    .price-original { text-decoration: line-through; color: var(--text-muted); font-size: 0.9rem; }
+    .price-promo { font-size: 1.5rem; font-weight: 800; color: var(--brand-green); }
+
+    .btn-buy {
+      width: 100%;
+      background: var(--brand-orange);
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      font-weight: 700;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-buy:hover { background: var(--brand-orange-hover); }
+
+    /* MODAIS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--bg-card);
+      width: 100%;
+      max-width: 500px;
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main); }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.3rem; font-weight: 600; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-primary);
+      color: var(--text-main);
+    }
+
+    /* INSPETOR DE BANCO DE DADOS */
+    .db-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+    }
+    .db-table th, .db-table td {
+      border: 1px solid var(--border-color);
+      padding: 6px 8px;
+      text-align: left;
+    }
+    .db-table th { background: rgba(0,0,0,0.05); }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA DE ACESSIBILIDADE -->
+  <div class="a11y-bar">
+    <div>⚡ <strong>Acessibilidade:</strong> Ajude a salvar alimentos no prazo!</div>
+    <div style="display: flex; gap: 8px;">
+      <button class="a11y-btn" onclick="changeFontSize(1)" title="Aumentar Fonte">A+</button>
+      <button class="a11y-btn" onclick="changeFontSize(-1)" title="Diminuir Fonte">A-</button>
+      <button class="a11y-btn" onclick="resetFontSize()" title="Fonte Normal">A</button>
+      <button class="a11y-btn" onclick="toggleContrast()" title="Alto Contraste">◐ Alto Contraste</button>
+    </div>
+  </div>
+
+  <!-- CABEÇALHO -->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        🛒 Tá no <span>PRAZO</span>
+      </div>
+      <div class="user-nav">
+        <button class="btn-header" onclick="openModal('dbModal')">🗄️ Ver Banco de Dados</button>
+        <button class="btn-header" id="btnPartner" onclick="openModal('productModal')" style="display:none; background: var(--brand-yellow); color:#000;">➕ Anunciar Produto</button>
+        <button class="btn-header" id="btnLogin" onclick="openModal('authModal')">👤 Entrar / Cadastrar</button>
+        <button class="btn-header" onclick="openModal('cartModal')">
+          🛒 Carrinho <span class="btn-cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO E BARRA DE PESQUISA -->
+  <section class="hero">
+    <h1>Alimentos com até 80% de Desconto</h1>
+    <p>Ajude os mercados da sua região a evitar o desperdício comprando produtos perto do vencimento.</p>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="O que você está procurando hoje? (ex: Pão, Leite, Iogurte)" oninput="filterProducts()">
+    </div>
+  </section>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="container">
+    <!-- BARRA LATERAL DE FILTROS -->
+    <aside class="sidebar">
+      <div class="filter-group">
+        <h3>Categorias</h3>
+        <label class="filter-option"><input type="checkbox" value="Padaria" onchange="filterProducts()" checked> Padaria</label>
+        <label class="filter-option"><input type="checkbox" value="Laticínios" onchange="filterProducts()" checked> Laticínios</label>
+        <label class="filter-option"><input type="checkbox" value="Hortifruti" onchange="filterProducts()" checked> Hortifruti</label>
+        <label class="filter-option"><input type="checkbox" value="Carnes" onchange="filterProducts()" checked> Carnes</label>
+      </div>
+      <div class="filter-group">
+        <h3>Desconto Mínimo</h3>
+        <label class="filter-option"><input type="radio" name="discount" value="0" onchange="filterProducts()" checked> Todos</label>
+        <label class="filter-option"><input type="radio" name="discount" value="60" onchange="filterProducts()"> 60% OFF ou mais</label>
+        <label class="filter-option"><input type="radio" name="discount" value="70" onchange="filterProducts()"> 70% OFF ou mais</label>
+        <label class="filter-option"><input type="radio" name="discount" value="80" onchange="filterProducts()"> 80% OFF!</label>
+      </div>
+    </aside>
+
+    <!-- GRID DE PRODUTOS -->
+    <main class="products-grid" id="productsGrid"></main>
+  </div>
+
+  <!-- MODAL DE AUTENTICAÇÃO / CADASTRO -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Acessar / Cadastrar</h2>
+        <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
+      </div>
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <div class="form-group">
+          <label>Tipo de Conta</label>
+          <select id="userRole">
+            <option value="consumer">Consumidor (Comprador)</option>
+            <option value="partner">Estabelecimento (Padaria/Mercado)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nome / Nome do Estabelecimento</label>
+          <input type="text" id="userName" required placeholder="Ex: Padaria Pão Quente">
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="userEmail" required placeholder="email@exemplo.com">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" required value="123456">
+        </div>
+        <button type="submit" class="btn-buy">Entrar / Salvar no Banco</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE CADASTRO DE PRODUTO -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Anunciar Produto no Prazo</h2>
+        <button class="modal-close" onclick="closeModal('productModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddProduct(event)">
+        <div class="form-group">
+          <label>Nome do Produto</label>
+          <input type="text" id="pTitle" required placeholder="Ex: Queijo Mussarela 500g">
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="pCategory">
+            <option value="Padaria">Padaria</option>
+            <option value="Laticínios">Laticínios</option>
+            <option value="Hortifruti">Hortifruti</option>
+            <option value="Carnes">Carnes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Preço Original (R$)</label>
+          <input type="number" step="0.01" id="pOriginalPrice" required placeholder="20.00">
+        </div>
+        <div class="form-group">
+          <label>Desconto (%)</label>
+          <select id="pDiscount">
+            <option value="60">60% OFF</option>
+            <option value="70">70% OFF</option>
+            <option value="80">80% OFF</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Vencimento</label>
+          <input type="text" id="pExpiry" required placeholder="Ex: Vence Hoje! ou Vence Amanhã">
+        </div>
+        <button type="submit" class="btn-buy">Cadastrar no Banco de Dados</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DO CARRINHO -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Seu Carrinho</h2>
+        <button class="modal-close" onclick="closeModal('cartModal')">&times;</button>
+      </div>
+      <div id="cartItems"></div>
+      <div style="margin-top: 1rem; text-align: right;">
+        <h3>Total: R$ <span id="cartTotal">0.00</span></h3>
+        <p style="color: var(--brand-green); font-weight: bold;" id="cartSavings"></p>
+        <button class="btn-buy" onclick="alert('Pedido realizado com sucesso! Retire no estabelecimento.')">Finalizar Pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DO INSPETOR DE BANCO DE DADOS -->
+  <div class="modal-overlay" id="dbModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2>🗄️ Inspetor do Banco de Dados (LocalStorage)</h2>
+        <button class="modal-close" onclick="closeModal('dbModal')">&times;</button>
+      </div>
+      <p>Estes dados estão salvos no <strong>localStorage</strong> do seu navegador:</p>
+      
+      <h3 style="margin-top:1rem;">Tabela: Usuarios (users)</h3>
+      <table class="db-table" id="dbUsersTable"></table>
+
+      <h3 style="margin-top:1rem;">Tabela: Produtos (products)</h3>
+      <table class="db-table" id="dbProductsTable"></table>
+
+      <button class="btn-buy" style="background:#dc2626; margin-top:1rem;" onclick="resetDatabase()">Restaurar Banco de Dados Padrão</button>
+    </div>
+  </div>
+
+  <script>
+    /* DADOS INICIAIS DO BANCO DE DADOS LOCAL */
+    const initialProducts = [
+      { id: 1, title: 'Bolo de Chocolate Artesanal', store: 'Padaria Pão Quente', category: 'Padaria', originalPrice: 25.00, discount: 70, expiry: 'Vence Hoje!', img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400' },
+      { id: 2, title: 'Iogurte Natural 1L', store: 'Supermercado Bairro Bom', category: 'Laticínios', originalPrice: 14.00, discount: 80, expiry: 'Vence Amanhã', img: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400' },
+      { id: 3, title: 'Bandeja de Morangos 250g', store: 'Hortifruti Frescor', category: 'Hortifruti', originalPrice: 12.00, discount: 60, expiry: 'Vence em 2 dias', img: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400' },
+      { id: 4, title: 'Peito de Frango 1kg', store: 'Mercado Central', category: 'Carnes', originalPrice: 22.00, discount: 60, expiry: 'Vence Hoje!', img: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400' }
+    ];
+
+    const initialUsers = [
+      { id: 1, name: 'Padaria Pão Quente', email: 'padaria@email.com', role: 'partner' },
+      { id: 2, name: 'João Silva', email: 'joao@email.com', role: 'consumer' }
+    ];
+
+    if (!localStorage.getItem('products')) localStorage.setItem('products', JSON.stringify(initialProducts));
+    if (!localStorage.getItem('users')) localStorage.setItem('users', JSON.stringify(initialUsers));
+
+    let currentUser = null;
+    let cart = [];
+    let fontScale = 1;
+
+    /* ACESSIBILIDADE */
+    function changeFontSize(delta) {
+      fontScale = Math.max(0.8, Math.min(1.4, fontScale + delta * 0.1));
+      document.documentElement.style.setProperty('--font-scale', fontScale);
+    }
+    function resetFontSize() {
+      fontScale = 1;
+      document.documentElement.style.setProperty('--font-scale', 1);
+    }
+    function toggleContrast() {
+      document.body.classList.toggle('high-contrast');
+    }
+
+    /* RENDERIZAR PRODUTOS */
+    function renderProducts(productsToRender) {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = '';
+
+      const products = productsToRender || JSON.parse(localStorage.getItem('products'));
+
+      products.forEach(p => {
+        const promoPrice = (p.originalPrice * (1 - p.discount / 100)).toFixed(2);
+        
+        // Ativa a animação de piscar para itens que vencem HOJE ou AMANHÃ (dia seguinte)
+        const expiryLower = p.expiry.toLowerCase();
+        const isUrgent = expiryLower.includes('hoje') || expiryLower.includes('amanhã') || expiryLower.includes('amanha');
+        const urgentClass = isUrgent ? 'urgent' : '';
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <span class="badge-discount">-${p.discount}%</span>
+          <span class="badge-expiry ${urgentClass}">⏳ ${p.expiry}</span>
+          <img src="${p.img}" class="card-img" alt="${p.title}">
+          <div class="card-body">
+            <span class="store-name">🏪 ${p.store}</span>
+            <h3 class="product-title">${p.title}</h3>
+            <div class="prices">
+              <span class="price-original">R$ ${p.originalPrice.toFixed(2)}</span>
+              <span class="price-promo">R$ ${promoPrice}</span>
+            </div>
+            <button class="btn-buy" onclick="addToCart(${p.id})">Adicionar ao Carrinho</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    /* FILTROS */
+    function filterProducts() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const selectedCategories = Array.from(document.querySelectorAll('.filter-group input[type="checkbox"]:checked')).map(cb => cb.value);
+      const minDiscount = parseFloat(document.querySelector('input[name="discount"]:checked').value);
+
+      const products = JSON.parse(localStorage.getItem('products'));
+      const filtered = products.filter(p => {
+        const matchesQuery = p.title.toLowerCase().includes(query) || p.store.toLowerCase().includes(query);
+        const matchesCategory = selectedCategories.includes(p.category);
+        const matchesDiscount = p.discount >= minDiscount;
+        return matchesQuery && matchesCategory && matchesDiscount;
+      });
+
+      renderProducts(filtered);
+    }
+
+    /* LOGIN E BANCO DE DADOS */
+    function handleAuth(e) {
+      e.preventDefault();
+      const name = document.getElementById('userName').value;
+      const email = document.getElementById('userEmail').value;
+      const role = document.getElementById('userRole').value;
+
+      const users = JSON.parse(localStorage.getItem('users'));
+      let user = users.find(u => u.email === email);
+
+      if (!user) {
+        user = { id: Date.now(), name, email, role };
+        users.push(user);
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+
+      currentUser = user;
+      document.getElementById('btnLogin').innerText = `👤 ${user.name}`;
+      if (user.role === 'partner') {
+        document.getElementById('btnPartner').style.display = 'flex';
+      } else {
+        document.getElementById('btnPartner').style.display = 'none';
+      }
+
+      closeModal('authModal');
+      renderDatabaseInspector();
+      alert(`Bem-vindo, ${user.name}!`);
+    }
+
+    /* CADASTRAR PRODUTO */
+    function handleAddProduct(e) {
+      e.preventDefault();
+      const title = document.getElementById('pTitle').value;
+      const category = document.getElementById('pCategory').value;
+      const originalPrice = parseFloat(document.getElementById('pOriginalPrice').value);
+      const discount = parseInt(document.getElementById('pDiscount').value);
+      const expiry = document.getElementById('pExpiry').value;
+
+      const products = JSON.parse(localStorage.getItem('products'));
+      const newProduct = {
+        id: Date.now(),
+        title,
+        store: currentUser ? currentUser.name : 'Estabelecimento Parceiro',
+        category,
+        originalPrice,
+        discount,
+        expiry,
+        img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400'
+      };
+
+      products.unshift(newProduct);
+      localStorage.setItem('products', JSON.stringify(products));
+
+      closeModal('productModal');
+      renderProducts();
+      renderDatabaseInspector();
+      alert('Produto cadastrado e anunciado com sucesso!');
+    }
+
+    /* CARRINHO */
+    function addToCart(id) {
+      const products = JSON.parse(localStorage.getItem('products'));
+      const prod = products.find(p => p.id === id);
+      cart.push(prod);
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      document.getElementById('cartCount').innerText = cart.length;
+      const cartItemsDiv = document.getElementById('cartItems');
+      cartItemsDiv.innerHTML = '';
+      let total = 0;
+      let totalOriginal = 0;
+
+      cart.forEach((item, index) => {
+        const promoPrice = item.originalPrice * (1 - item.discount / 100);
+        total += promoPrice;
+        totalOriginal += item.originalPrice;
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <div>
+            <strong>${item.title}</strong><br>
+            <small>${item.store} (-${item.discount}%)</small>
+          </div>
+          <div>
+            <strong>R$ ${promoPrice.toFixed(2)}</strong>
+            <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; margin-left:10px; cursor:pointer;">❌</button>
+          </div>
+        `;
+        cartItemsDiv.appendChild(div);
+      });
+
+      document.getElementById('cartTotal').innerText = total.toFixed(2);
+      document.getElementById('cartSavings').innerText = cart.length > 0 ? `Você economizou R$ ${(totalOriginal - total).toFixed(2)}!` : '';
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
+    }
+
+    /* INSPETOR DE BANCO */
+    function renderDatabaseInspector() {
+      const users = JSON.parse(localStorage.getItem('users'));
+      const products = JSON.parse(localStorage.getItem('products'));
+
+      let usersHTML = '<tr><th>ID</th><th>Nome</th><th>Email</th><th>Perfil</th></tr>';
+      users.forEach(u => {
+        usersHTML += `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.role}</td></tr>`;
+      });
+      document.getElementById('dbUsersTable').innerHTML = usersHTML;
+
+      let productsHTML = '<tr><th>ID</th><th>Produto</th><th>Loja</th><th>Preço Orig.</th><th>Desc.</th></tr>';
+      products.forEach(p => {
+        productsHTML += `<tr><td>${p.id}</td><td>${p.title}</td><td>${p.store}</td><td>R$ ${p.originalPrice}</td><td>${p.discount}%</td></tr>`;
+      });
+      document.getElementById('dbProductsTable').innerHTML = productsHTML;
+    }
+
+    function resetDatabase() {
+      localStorage.setItem('products', JSON.stringify(initialProducts));
+      localStorage.setItem('users', JSON.stringify(initialUsers));
+      renderProducts();
+      renderDatabaseInspector();
+      alert('Banco de dados restaurado!');
+    }
+
+    /* AUXILIARES DE MODAL */
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    /* INICIALIZAÇÃO */
+    renderProducts();
+    renderDatabaseInspector();
+  </script>
+</body>
+</html>
